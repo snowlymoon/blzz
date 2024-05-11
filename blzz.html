@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影像中心病例追踪登记本</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    vertical-align: top; /* 垂直居中 */
+  }
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  h1 {
+    text-align: center;
+  }
+  .autoHeight {
+    overflow: hidden;
+    resize: none;
+    min-height: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px; /* 调整字体大小 */
+    line-height: 1.5; /* 调整行高 */
+  }
+  .saved {
+    background-color: #f0f0f0; /* 修改背景色表示已保存 */
+  }
+  .editButton, .deleteButton {
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  .centerContent {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>影像中心病例追踪登记本</h1>
+
+<table id="caseTable">
+  <tr>
+    <th>序号</th>
+    <th style="width: 75px;">姓名</th>
+    <th style="width: 50px;">年龄</th>
+    <th style="width: 50px;">性别</th>
+    <th style="width: 100px;">检查时间</th>
+    <th style="width: 100px;">访问号</th>
+    <th style="width: 100px;">所在科室</th>
+    <th style="width: 100px;">住院号</th>
+    <th style="width: 100px;">联系方式</th>
+    <th style="width: 200px;">影像诊断</th>
+    <th style="width: 200px;">手术方式</th>
+    <th style="width: 200px;">术中可见</th>
+    <th style="width: 200px;">病理结果</th>
+    <th>操作</th>
+  </tr>
+</table>
+
+<button onclick="addRow()">添加行</button>
+
+<script>
+  var rowCount = 1;
+
+  function addRow() {
+    var table = document.getElementById("caseTable");
+    var row = table.insertRow(-1); // 插入新行到最后
+    
+    // 添加序号列
+    var cell = row.insertCell(0);
+    cell.textContent = rowCount++;
+
+    // 添加其他列
+    for (var i = 1; i < 13; i++) {
+      var cell = row.insertCell(i);
+      var input = document.createElement('textarea');
+      input.classList.add('autoHeight');
+      input.setAttribute('rows', 1);
+      input.addEventListener('input', function() {
+        autoExpand(this);
+      });
+      if (i >= 1 && i <= 8) { // 居中显示姓名、年龄、性别、检查时间、访问号、所在科室、住院号、联系方式
+        input.classList.add('centerContent');
+      }
+      cell.appendChild(input);
+    }
+
+    // 添加操作列
+    var cell = row.insertCell(13);
+    var saveButton = document.createElement('button');
+    saveButton.textContent = '保存';
+    saveButton.classList.add('editButton');
+    saveButton.addEventListener('click', function() {
+      saveOrEditRow(this);
+    });
+    cell.appendChild(saveButton);
+
+    var deleteButton = document.createElement('button');
+    deleteButton.textContent = '删除';
+    deleteButton.classList.add('deleteButton');
+    deleteButton.addEventListener('click', function() {
+      if (confirm('确定要删除这一行吗？')) {
+        deleteRow(this);
+      }
+    });
+    cell.appendChild(deleteButton);
+  }
+
+  function autoExpand(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight + 2) + 'px'; // 为了防止内容被截断，加 2px 的额外高度
+  }
+
+  function saveOrEditRow(button) {
+    var row = button.parentNode.parentNode;
+    var textareas = row.querySelectorAll('.autoHeight');
+    for (var i = 0; i < textareas.length; i++) {
+      if (textareas[i].readOnly) {
+        textareas[i].readOnly = false;
+        textareas[i].classList.remove('saved'); // 移除已保存的背景色
+      } else {
+        textareas[i].readOnly = true;
+        textareas[i].classList.add('saved'); // 添加已保存的背景色
+      }
+    }
+    if (button.textContent === '保存') {
+      button.textContent = '编辑';
+    } else {
+      button.textContent = '保存';
+    }
+  }
+
+  function deleteRow(button) {
+    var row = button.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+    resetRowNumbers(); // 删除行后重新设置序号
+    // 在这里编写删除行的逻辑
+  }
+
+  function resetRowNumbers() {
+    var table = document.getElementById("caseTable");
+    var rows = table.getElementsByTagName('tr');
+    for (var i = 1; i < rows.length; i++) {
+      var cells = rows[i].cells;
+      cells[0].textContent = i;
+    }
+  }
+</script>
+
+</body>
+</html>
